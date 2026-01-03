@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Welcome to SkillLink</h1>
+        <p class="hero-subtitle">AI-Powered Resume Builder & Job Matching for Blue-Collar Workers</p>
+        
+        <div class="choice-cards">
+            <div class="card">
+                <h2>For Workers</h2>
+                <p>Create your professional resume with AI assistance in English, Hindi, or Odia</p>
+                <button class="btn btn-primary" onclick="showWorkerForm()">Get Started</button>
+            </div>
+            
+            <div class="card">
+                <h2>For Employers</h2>
+                <p>Post jobs and find the best candidates with AI matching</p>
+                <button class="btn btn-secondary" onclick="showEmployerForm()">Get Started</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="workerModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('workerModal')">&times;</span>
+        <h2>Worker Registration</h2>
+        <form id="workerForm">
+            <div class="form-group">
+                <label for="workerPhone">Phone Number</label>
+                <input type="tel" id="workerPhone" placeholder="Enter 10-digit mobile number" required>
+            </div>
+            <div class="form-group">
+                <label for="workerLanguage">Preferred Language</label>
+                <select id="workerLanguage">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi (हिंदी)</option>
+                    <option value="or">Odia (ଓଡ଼ିଆ)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+    </div>
+</div>
+
+<div id="employerModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('employerModal')">&times;</span>
+        <h2>Employer Registration</h2>
+        <form id="employerForm">
+            <div class="form-group">
+                <label for="orgName">Organization Name</label>
+                <input type="text" id="orgName" placeholder="Enter organization name" required>
+            </div>
+            <div class="form-group">
+                <label for="orgPhone">Phone Number</label>
+                <input type="tel" id="orgPhone" placeholder="Enter 10-digit mobile number" required>
+            </div>
+            <button type="submit" class="btn btn-secondary">Continue</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/validation.js') }}"></script>
+<script>
+function showWorkerForm() {
+    document.getElementById('workerModal').style.display = 'flex';
+}
+
+function showEmployerForm() {
+    document.getElementById('employerModal').style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+document.getElementById('workerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const phone = document.getElementById('workerPhone').value;
+    const language = document.getElementById('workerLanguage').value;
+    
+    try {
+        const response = await fetch('/worker/start', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({phone, language})
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.location.href = '/worker/chat';
+        } else {
+            alert(data.error || 'Registration failed');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+});
+
+document.getElementById('employerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('orgName').value;
+    const phone = document.getElementById('orgPhone').value;
+    
+    try {
+        const response = await fetch('/employer/start', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, phone})
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.location.href = '/employer/dashboard';
+        } else {
+            alert(data.error || 'Registration failed');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+});
+</script>
+{% endblock %}

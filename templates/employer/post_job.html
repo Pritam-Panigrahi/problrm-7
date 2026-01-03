@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Post Job - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container form-container">
+    <h2>Post a New Job</h2>
+    
+    <form id="jobForm">
+        <div class="form-group">
+            <label for="title">Job Title *</label>
+            <input type="text" id="title" placeholder="e.g., Senior Electrician" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="trade">Trade *</label>
+            <select id="trade" required>
+                <option value="">Select Trade</option>
+                <option value="Electrician">Electrician</option>
+                <option value="Plumber">Plumber</option>
+                <option value="Carpenter">Carpenter</option>
+                <option value="Welder">Welder</option>
+                <option value="Mason">Mason</option>
+                <option value="Painter">Painter</option>
+                <option value="Mechanic">Mechanic</option>
+                <option value="HVAC Technician">HVAC Technician</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Job Description *</label>
+            <textarea id="description" rows="5" placeholder="Describe the job role, responsibilities, and requirements" required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="required_skills">Required Skills (comma-separated) *</label>
+            <input type="text" id="required_skills" placeholder="e.g., wiring, troubleshooting, circuit installation" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="experience_required">Experience Required (years)</label>
+                <input type="number" id="experience_required" min="0" value="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Location *</label>
+                <input type="text" id="location" placeholder="City, State" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="salary_min">Minimum Salary (₹/month)</label>
+                <input type="number" id="salary_min" min="0" placeholder="e.g., 25000">
+            </div>
+            
+            <div class="form-group">
+                <label for="salary_max">Maximum Salary (₹/month)</label>
+                <input type="number" id="salary_max" min="0" placeholder="e.g., 35000">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Post Job</button>
+            <a href="{{ url_for('employer_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('jobForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        title: document.getElementById('title').value,
+        trade: document.getElementById('trade').value,
+        description: document.getElementById('description').value,
+        required_skills: document.getElementById('required_skills').value,
+        experience_required: document.getElementById('experience_required').value,
+        location: document.getElementById('location').value,
+        salary_min: document.getElementById('salary_min').value || 0,
+        salary_max: document.getElementById('salary_max').value || 0
+    };
+    
+    try {
+        const response = await fetch('/employer/post_job', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Job posted successfully!');
+            window.location.href = '/employer/dashboard';
+        } else {
+            alert(data.error || 'Failed to post job');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,237 @@
+ SkillLink: AI Resume & Job Connector**
+
+**Goal:**
+Generate a **complete, production-ready Flask web application** called **SkillLink**, an AI-powered resume builder and job-matching platform tailored for **blue-collar workers** (plumbers, electricians, carpenters, welders, etc.).
+The app must integrate **Gemini API** for conversational intelligence, multilingual understanding, and AI-driven job recommendations.
+
+---
+
+### 🎯 **Core Purpose**
+
+SkillLink helps workers:
+
+* **Create professional, ATS-friendly resumes** using voice or text in English/Hindi
+* **Receive AI-guided help** through a **Gemini-powered conversational interface**
+* **Get personalized job recommendations** based on skills, trade, and location
+* **Apply for jobs directly** within the app
+
+It also helps **employers** post jobs, find relevant candidates, and manage applications.
+
+---
+
+### 🧠 **AI & Gemini Integration Requirements**
+
+1. **Conversational Resume Assistant**
+
+   * Multi-turn chat using Gemini (`gemini-pro` model).
+   * Understand informal speech/text in Hindi/English.
+   * Guide users step-by-step to build a resume naturally.
+   * Store conversation context and extract structured data.
+   * Trigger “COMPLETE” when all details are gathered.
+
+2. **Skill Extraction & Enhancement**
+
+   * Use Gemini to normalize, expand, and categorize skills.
+   * Categorize as: *Technical Skills*, *Soft Skills*, *Tools & Equipment*.
+   * Return structured JSON output.
+
+3. **Smart Job Matching**
+
+   * Gemini should score jobs for each user on a scale of 1–10.
+   * Consider skill overlap, experience match, location proximity, and growth potential.
+   * Return ranked JSON with reasoning for each match.
+
+4. **ATS-Optimized Resume Generation**
+
+   * Generate a concise, one-page, ATS-friendly resume.
+   * Include sections: SUMMARY, EXPERIENCE, SKILLS, CERTIFICATIONS.
+   * Use quantifiable action verbs and trade-specific phrases.
+   * Export as downloadable PDF.
+
+5. **Multilingual Support**
+
+   * Translate all UI text and AI responses using Gemini.
+   * Support `en` and `hi` languages (extendable to others).
+   * Maintain professional and accessible tone.
+
+---
+
+### 💬 **Conversational Flow Example**
+
+**AI (Gemini):** “Namaste! What type of work do you do?”
+**User:** “Main electrician hoon, 5 saal se kaam kar raha hoon.”
+**AI:** “Great! Please tell me a few things you are good at — like wiring, repair, or installation?”
+... until resume is complete → outputs “COMPLETE”
+
+---
+
+### 🏗️ **App Structure (Flask)**
+
+```
+skilllink/
+│
+├── app.py                     # Main Flask application
+├── config.py                  # App config and environment variables
+├── requirements.txt            # Dependencies
+├── database.db                 # SQLite database
+│
+├── templates/                  # HTML (Jinja2)
+│   ├── base.html               # Navbar, footer
+│   ├── index.html              # Landing page
+│   ├── worker/                 # Worker journey
+│   │   ├── chat.html           # Gemini chat interface
+│   │   ├── resume_preview.html
+│   │   ├── jobs.html
+│   ├── employer/               # Employer journey
+│   │   ├── dashboard.html
+│   │   ├── post_job.html
+│   │   ├── matches.html
+│   └── components/             # Navbar, footer, progress bar
+│
+├── static/
+│   ├── css/                    # style.css, resume.css, mobile.css
+│   ├── js/                     # voice.js, chat.js, validation.js
+│   ├── images/
+│   └── resumes/                # Generated resume PDFs
+│
+├── utils/
+│   ├── ai_assistant.py         # Gemini wrapper
+│   ├── resume_generator.py     # ATS resume logic
+│   ├── job_matcher.py          # AI ranking algorithm
+│   ├── skill_extractor.py      # AI-based skill expansion
+│   ├── pdf_generator.py        # PDF export
+│   └── validators.py           # Input validation
+│
+├── models/
+│   ├── database.py             # DB initialization
+│   ├── user.py                 # Worker model
+│   ├── job.py                  # Job model
+│   ├── organization.py         # Employer model
+│   └── application.py          # Applications table
+│
+└── tests/
+    ├── test_ai.py
+    ├── test_matching.py
+    ├── test_routes.py
+```
+
+---
+
+### 🗄️ **Database Schema (SQLite)**
+
+**Tables:**
+
+* `users` – worker profiles (skills, trade, experience, language, location)
+* `organizations` – employers
+* `jobs` – job listings
+* `applications` – job applications (user_id, job_id, status)
+
+Use foreign keys for relational mapping.
+
+---
+
+### 🎤 **Voice & Multilingual Interface**
+
+**Frontend (voice.js):**
+
+* Implement speech-to-text using Web Speech API.
+* Detect user language (English/Hindi).
+* Stream input to Gemini conversation.
+* Display AI replies in chosen language.
+
+**UI elements:**
+
+```html
+<button id="voiceBtn" onclick="toggleVoiceInput()">🎤 Speak</button>
+<textarea id="userInput" placeholder="Type or speak..."></textarea>
+<button class="send-btn">Send</button>
+```
+
+---
+
+### 🔐 **Security Essentials**
+
+* Validate phone numbers (Indian format).
+* Sanitize all input with `bleach.clean()`.
+* Store environment variables securely (`.env`).
+* Enable HTTPS-only cookies and session expiry (24 hrs).
+
+---
+
+### ⚙️ **Key Flask Routes**
+
+**Worker Routes**
+
+| Path                       | Purpose                     |
+| -------------------------- | --------------------------- |
+| `/worker/chat`             | Gemini chat interface       |
+| `/worker/resume/preview`   | AI-generated resume preview |
+| `/worker/jobs/recommended` | AI job recommendations      |
+| `/worker/apply/<job_id>`   | Apply for a job             |
+
+**Employer Routes**
+
+| Path                 | Purpose                    |
+| -------------------- | -------------------------- |
+| `/employer/post_job` | Job posting                |
+| `/employer/matches`  | View AI-matched candidates |
+
+---
+
+### 🌍 **Deployment Setup**
+
+**Environment Variables**
+
+```bash
+GEMINI_API_KEY=your_api_key_here
+SECRET_KEY=your_secret_key_here
+FLASK_ENV=production
+```
+
+**Render / Hugging Face Deployment**
+
+```python
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=7860)
+```
+
+**requirements.txt**
+
+```
+Flask
+google-generativeai
+SQLAlchemy
+python-docx
+pdfkit
+bleach
+gunicorn
+python-dotenv
+Pillow
+```
+
+---
+
+### 🧪 **Testing Targets**
+
+* AI conversation correctness
+* Resume accuracy and formatting
+* Job ranking logic
+* Multilingual translation
+* Voice input
+* Mobile responsiveness
+
+---
+
+### 🚀 **Expected Output**
+
+A working **Flask web app** with:
+
+* Conversational AI resume builder (Gemini-integrated)
+* Multilingual voice and text support
+* Real-time skill extraction
+* AI-driven job matching and ranking
+* PDF resume generation
+* Employer dashboard and posting system
+
+The system should be fully functional, well-commented, modular, and deployable.
+

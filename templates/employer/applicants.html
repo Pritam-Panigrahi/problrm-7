@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Applicants - {{ job.title }} - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container applicants-container">
+    <div class="page-header">
+        <h2>Applicants for: {{ job.title }}</h2>
+        <a href="{{ url_for('employer_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    
+    <div class="job-summary">
+        <p><strong>Trade:</strong> {{ job.trade }}</p>
+        <p><strong>Location:</strong> {{ job.location }}</p>
+        <p><strong>Experience Required:</strong> {{ job.experience_required }} years</p>
+        <p><strong>Total Applicants:</strong> {{ applicants|length }}</p>
+    </div>
+    
+    {% if applicants %}
+    <div class="applicants-list">
+        {% for applicant in applicants %}
+        <div class="applicant-card">
+            <div class="applicant-header">
+                <div>
+                    <h3>{{ applicant.user.name }}</h3>
+                    <p class="applicant-trade">{{ applicant.user.trade }}</p>
+                </div>
+                <div class="status-control">
+                    <label>Status:</label>
+                    <select class="status-select" onchange="updateStatus({{ applicant.application.id }}, this.value)">
+                        <option value="pending" {% if applicant.application.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if applicant.application.status == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if applicant.application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                    <span class="status-badge status-{{ applicant.application.status }}">
+                        {{ applicant.application.status.title() }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="applicant-details">
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <strong>Phone:</strong> {{ applicant.user.phone }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Location:</strong> {{ applicant.user.location }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Experience:</strong> {{ applicant.user.experience_years }} years
+                    </div>
+                </div>
+                
+                {% if applicant.user.skills %}
+                <div class="skills-section">
+                    <strong>Skills:</strong>
+                    <div class="skills-list">
+                        {% for skill in applicant.user.skills[:10] %}
+                        <span class="skill-tag">{{ skill }}</span>
+                        {% endfor %}
+                        {% if applicant.user.skills|length > 10 %}
+                        <span class="skill-tag">+{{ applicant.user.skills|length - 10 }} more</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="application-meta">
+                    <p><strong>Applied:</strong> {{ applicant.application.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    {% if applicant.application.match_score %}
+                    <p><strong>Match Score:</strong> {{ applicant.application.match_score }}/10</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No applicants yet for this position.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function updateStatus(applicationId, newStatus) {
+    try {
+        const response = await fetch(`/employer/application/update/${applicationId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            location.reload();
+        } else {
+            alert(result.error || 'Failed to update status');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

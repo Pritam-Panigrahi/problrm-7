@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container account-container">
+    <h2>My Account</h2>
+    
+    <div class="account-section">
+        <div class="section-header">
+            <h3>Profile Information</h3>
+            <button class="btn btn-secondary" onclick="toggleEdit()">Edit Profile</button>
+        </div>
+        
+        <div id="profileView" class="profile-view">
+            <div class="profile-field">
+                <label>Name:</label>
+                <p>{{ user.name or 'Not set' }}</p>
+            </div>
+            <div class="profile-field">
+                <label>Phone:</label>
+                <p>{{ user.phone }}</p>
+            </div>
+            <div class="profile-field">
+                <label>Trade:</label>
+                <p>{{ user.trade or 'Not set' }}</p>
+            </div>
+            <div class="profile-field">
+                <label>Location:</label>
+                <p>{{ user.location or 'Not set' }}</p>
+            </div>
+            <div class="profile-field">
+                <label>Experience:</label>
+                <p>{{ user.experience_years or '0' }} years</p>
+            </div>
+            <div class="profile-field">
+                <label>Language:</label>
+                <p>{{ user.language }}</p>
+            </div>
+            <div class="profile-field">
+                <label>Member Since:</label>
+                <p>{{ user.created_at.strftime('%B %d, %Y') }}</p>
+            </div>
+        </div>
+        
+        <div id="profileEdit" class="profile-edit" style="display: none;">
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ user.name or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="trade">Trade:</label>
+                    <input type="text" id="trade" name="trade" value="{{ user.trade or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" name="location" value="{{ user.location or '' }}" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="toggleEdit()">Cancel</button>
+                </div>
+            </form>
+            <div id="message" class="message" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleEdit() {
+    const view = document.getElementById('profileView');
+    const edit = document.getElementById('profileEdit');
+    const message = document.getElementById('message');
+    
+    if (view.style.display === 'none') {
+        view.style.display = 'block';
+        edit.style.display = 'none';
+        message.style.display = 'none';
+    } else {
+        view.style.display = 'none';
+        edit.style.display = 'block';
+    }
+}
+
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('name').value,
+        trade: document.getElementById('trade').value,
+        location: document.getElementById('location').value
+    };
+    
+    try {
+        const response = await fetch('/worker/account/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        const message = document.getElementById('message');
+        
+        if (result.success) {
+            message.className = 'message success';
+            message.textContent = 'Profile updated successfully!';
+            message.style.display = 'block';
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            message.className = 'message error';
+            message.textContent = result.error || 'Failed to update profile';
+            message.style.display = 'block';
+        }
+    } catch (error) {
+        const message = document.getElementById('message');
+        message.className = 'message error';
+        message.textContent = 'Error: ' + error.message;
+        message.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

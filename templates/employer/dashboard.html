@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Employer Dashboard - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <h2>Welcome, {{ org.name }}</h2>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>{{ jobs|length }}</h3>
+            <p>Active Jobs</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ jobs|sum(attribute='application_count') }}</h3>
+            <p>Total Applications</p>
+        </div>
+    </div>
+    
+    <div class="jobs-section">
+        <div class="section-header">
+            <h3>Your Job Postings</h3>
+            <a href="{{ url_for('employer_post_job') }}" class="btn btn-primary">Post New Job</a>
+        </div>
+        
+        {% if jobs %}
+        <div class="jobs-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Location</th>
+                        <th>Applications</th>
+                        <th>Posted Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job_data in jobs %}
+                    <tr>
+                        <td>{{ job_data.job.title }}</td>
+                        <td>{{ job_data.job.location }}</td>
+                        <td>{{ job_data.application_count }}</td>
+                        <td>{{ job_data.job.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('employer_applicants', job_id=job_data.job.id) }}" class="btn btn-small">View Applicants</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No jobs posted yet. <a href="{{ url_for('employer_post_job') }}">Post your first job</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

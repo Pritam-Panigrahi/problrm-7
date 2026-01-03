@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Matches - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container matches-container">
+    <h2>Top Candidates for: {{ job.title }}</h2>
+    <p class="job-info">{{ job.location }} | Experience: {{ job.experience_required }}+ years</p>
+    
+    {% if matches %}
+    <div class="candidates-list">
+        {% for candidate in matches %}
+        <div class="candidate-card">
+            <div class="candidate-header">
+                <h3>{{ candidate.name }}</h3>
+                <span class="match-badge">{{ "%.1f"|format(candidate.match_score) }}/10 Match</span>
+            </div>
+            <p><strong>Trade:</strong> {{ candidate.trade }}</p>
+            <p><strong>Experience:</strong> {{ candidate.experience_years }} years</p>
+            <p><strong>Location:</strong> {{ candidate.location }}</p>
+            <p class="match-reason">{{ candidate.match_reasoning }}</p>
+            <div class="candidate-skills">
+                <strong>Skills:</strong>
+                {% for skill in candidate.skills[:8] %}
+                <span class="skill-tag">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No matching candidates found yet. Check back later!</p>
+    {% endif %}
+    
+    <a href="{{ url_for('employer_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

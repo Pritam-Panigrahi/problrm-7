@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Preview - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container resume-container">
+    <div class="resume-header">
+        <h2>Your Professional Resume</h2>
+        <button class="btn btn-primary" onclick="downloadResume()">Download PDF</button>
+    </div>
+    
+    <div class="resume-preview">
+        <div class="resume-section">
+            <h1 class="resume-name">{{ user.name }}</h1>
+            <p class="resume-contact">{{ user.phone }} | {{ user.location }}</p>
+        </div>
+        
+        <div class="resume-section">
+            <h3>PROFILE</h3>
+            <p><strong>Trade:</strong> {{ user.trade }}</p>
+            <p><strong>Experience:</strong> {{ user.experience_years }} years</p>
+        </div>
+        
+        {% if categorized_skills %}
+        <div class="resume-section">
+            <h3>SKILLS</h3>
+            {% if categorized_skills.technical_skills %}
+            <p><strong>Technical Skills:</strong> {{ ', '.join(categorized_skills.technical_skills) }}</p>
+            {% endif %}
+            {% if categorized_skills.tools_equipment %}
+            <p><strong>Tools & Equipment:</strong> {{ ', '.join(categorized_skills.tools_equipment) }}</p>
+            {% endif %}
+            {% if categorized_skills.soft_skills %}
+            <p><strong>Soft Skills:</strong> {{ ', '.join(categorized_skills.soft_skills) }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if user.work_history %}
+        <div class="resume-section">
+            <h3>WORK EXPERIENCE</h3>
+            {% for job in user.work_history %}
+            <div class="work-item">
+                <p><strong>{{ job.role }}</strong> - {{ job.company }}</p>
+                <p>{{ job.duration }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if user.certifications %}
+        <div class="resume-section">
+            <h3>CERTIFICATIONS</h3>
+            <p>{{ user.certifications }}</p>
+        </div>
+        {% endif %}
+        
+        {% if user.education %}
+        <div class="resume-section">
+            <h3>EDUCATION</h3>
+            <p>{{ user.education }}</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('worker_jobs_recommended') }}" class="btn btn-secondary">Browse Jobs</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function downloadResume() {
+    try {
+        const response = await fetch('/worker/resume/download');
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resume.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            alert('Failed to generate PDF');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

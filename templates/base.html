@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillLink - AI Resume & Job Connector{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>SkillLink</h1>
+            </div>
+            <div class="nav-links">
+                {% if session.get('user_type') == 'worker' %}
+                    <a href="{{ url_for('worker_dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('worker_chat') }}">Build Resume</a>
+                    <a href="{{ url_for('worker_jobs_recommended') }}">Browse Jobs</a>
+                    <a href="{{ url_for('worker_account') }}">Account</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% elif session.get('user_type') == 'employer' %}
+                    <a href="{{ url_for('employer_dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('employer_post_job') }}">Post Job</a>
+                    <a href="{{ url_for('employer_account') }}">Account</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('index') }}">Home</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 SkillLink. Empowering Blue-Collar Workers.</p>
+        </div>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

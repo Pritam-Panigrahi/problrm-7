@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{ user.name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm 2.5cm 2cm 2.5cm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: white;
+            font-size: 11pt;
+        }
+
+        .resume-preview {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .resume-section {
+            margin-bottom: 1.8rem;
+            page-break-inside: avoid;
+        }
+
+        .resume-section:first-child {
+            margin-bottom: 1.5rem;
+        }
+
+        .resume-section h3 {
+            color: #1a202c;
+            border-bottom: 2.5px solid #667eea;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.9rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .resume-name {
+            color: #1a202c;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .resume-contact {
+            color: #4a5568;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .resume-section p {
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .resume-section p strong {
+            color: #1a202c;
+            font-weight: 600;
+        }
+
+        .work-item {
+            margin-bottom: 1rem;
+            padding-left: 0.75rem;
+            border-left: 3px solid #667eea;
+            page-break-inside: avoid;
+        }
+
+        .work-item p {
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+        }
+
+        .work-item p:first-child {
+            font-weight: 600;
+            color: #1a202c;
+            font-size: 1rem;
+        }
+
+        .work-item p:last-child {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        /* Prevent orphans and widows */
+        p {
+            orphans: 3;
+            widows: 3;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            page-break-after: avoid;
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-preview">
+        <div class="resume-section">
+            <h1 class="resume-name">{{ user.name }}</h1>
+            <p class="resume-contact">{{ user.phone }} | {{ user.location }}</p>
+        </div>
+        
+        <div class="resume-section">
+            <h3>PROFILE</h3>
+            <p><strong>Trade:</strong> {{ user.trade }}</p>
+            <p><strong>Experience:</strong> {{ user.experience_years }} years</p>
+        </div>
+        
+        {% if categorized_skills %}
+        <div class="resume-section">
+            <h3>SKILLS</h3>
+            {% if categorized_skills.technical_skills %}
+            <p><strong>Technical Skills:</strong> {{ ', '.join(categorized_skills.technical_skills) }}</p>
+            {% endif %}
+            {% if categorized_skills.tools_equipment %}
+            <p><strong>Tools & Equipment:</strong> {{ ', '.join(categorized_skills.tools_equipment) }}</p>
+            {% endif %}
+            {% if categorized_skills.soft_skills %}
+            <p><strong>Soft Skills:</strong> {{ ', '.join(categorized_skills.soft_skills) }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if user.work_history %}
+        <div class="resume-section">
+            <h3>WORK EXPERIENCE</h3>
+            {% for job in user.work_history %}
+            <div class="work-item">
+                <p><strong>{{ job.role }}</strong> - {{ job.company }}</p>
+                <p>{{ job.duration }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if user.certifications %}
+        <div class="resume-section">
+            <h3>CERTIFICATIONS</h3>
+            <p>{{ user.certifications }}</p>
+        </div>
+        {% endif %}
+        
+        {% if user.education %}
+        <div class="resume-section">
+            <h3>EDUCATION</h3>
+            <p>{{ user.education }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

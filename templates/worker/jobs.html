@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Job Recommendations - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container jobs-container">
+    <h2>Recommended Jobs for You</h2>
+    
+    {% if jobs %}
+        <div class="jobs-list">
+            {% for job in jobs %}
+            <div class="job-card">
+                <div class="job-header">
+                    <h3>{{ job.title }}</h3>
+                    <span class="match-badge">{{ "%.1f"|format(job.match_score) }}/10 Match</span>
+                </div>
+                <p class="job-org">{{ job.organization_name }}</p>
+                <p class="job-location">📍 {{ job.location }}</p>
+                <p class="job-exp">Experience: {{ job.experience_required }} years</p>
+                <p class="job-salary">💰 ₹{{ "{:,.0f}".format(job.salary_min) }} - ₹{{ "{:,.0f}".format(job.salary_max) }}</p>
+                <p class="job-reasoning">{{ job.match_reasoning }}</p>
+                <div class="job-skills">
+                    {% for skill in job.required_skills[:5] %}
+                    <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-primary" onclick="applyForJob({{ job.id }})">Apply Now</button>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No jobs available at the moment. Check back soon!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function applyForJob(jobId) {
+    try {
+        const response = await fetch(`/worker/apply/${jobId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Application submitted successfully!');
+        } else {
+            alert(data.error || 'Application failed');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

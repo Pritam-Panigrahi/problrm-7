@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <h2>Welcome, {{ user.name or 'Worker' }}!</h2>
+    
+    <div class="dashboard-grid">
+        <div class="dashboard-section resume-section">
+            <div class="section-header">
+                <h3>My Resume</h3>
+            </div>
+            
+            {% if user.resume_complete %}
+            <div class="resume-summary">
+                <div class="resume-info">
+                    <p><strong>Name:</strong> {{ user.name }}</p>
+                    <p><strong>Trade:</strong> {{ user.trade }}</p>
+                    <p><strong>Experience:</strong> {{ user.experience_years }} years</p>
+                    <p><strong>Location:</strong> {{ user.location }}</p>
+                </div>
+                <div class="resume-actions">
+                    <a href="{{ url_for('worker_resume_preview') }}" class="btn btn-primary">View Resume</a>
+                    <button class="btn btn-secondary" onclick="downloadResume()">Download PDF</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>You haven't created your resume yet.</p>
+                <a href="{{ url_for('worker_chat') }}" class="btn btn-primary">Create Resume</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="dashboard-section applications-section">
+            <div class="section-header">
+                <h3>My Applications</h3>
+            </div>
+            
+            {% if applications %}
+            <div class="applications-list">
+                {% for app_data in applications %}
+                <div class="application-card">
+                    <div class="application-header">
+                        <h4>{{ app_data.job.title }}</h4>
+                        <span class="status-badge status-{{ app_data.application.status }}">
+                            {{ app_data.application.status.title() }}
+                        </span>
+                    </div>
+                    <div class="application-details">
+                        <p><strong>Company:</strong> {{ app_data.organization.name }}</p>
+                        <p><strong>Location:</strong> {{ app_data.job.location }}</p>
+                        <p><strong>Applied:</strong> {{ app_data.application.created_at.strftime('%B %d, %Y') }}</p>
+                        {% if app_data.job.salary_min and app_data.job.salary_max %}
+                        <p><strong>Salary:</strong> ₹{{ '{:,.0f}'.format(app_data.job.salary_min) }} - ₹{{ '{:,.0f}'.format(app_data.job.salary_max) }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>You haven't applied to any jobs yet.</p>
+                <a href="{{ url_for('worker_jobs_recommended') }}" class="btn btn-primary">Browse Jobs</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function downloadResume() {
+    try {
+        const response = await fetch('/worker/resume/download');
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resume.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            alert('Failed to generate PDF');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

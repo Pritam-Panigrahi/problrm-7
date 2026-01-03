@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - SkillLink{% endblock %}
+
+{% block content %}
+<div class="container chat-container">
+    <div class="chat-header">
+        <h2>{% if language == 'hi' %}अपना बायोडाटा बनाएं{% elif language == 'or' %}ଆପଣଙ୍କ ରିଜ୍ୟୁମ୍ ନିର୍ମାଣ କରନ୍ତୁ{% else %}Build Your Resume{% endif %}</h2>
+        <p>{% if language == 'hi' %}AI के साथ बात करें - टाइप करें या बोलें{% elif language == 'or' %}AI ସହିତ କଥା ହୁଅନ୍ତୁ - ଟାଇପ୍ କରନ୍ତୁ କିମ୍ବା କୁହନ୍ତୁ{% else %}Chat with AI - Type or Speak{% endif %}</p>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="message ai-message">
+            <p>{% if language == 'hi' %}नमस्ते! मैं आपका बायोडाटा बनाने में मदद करूंगा। आप किस तरह का काम करते हैं?{% elif language == 'or' %}ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କ ରିଜ୍ୟୁମ୍ ନିର୍ମାଣରେ ସାହାଯ୍ୟ କରିବି। ଆପଣ କେଉଁ ପ୍ରକାରର କାମ କରନ୍ତି?{% else %}Hello! I'll help you build your resume. What type of work do you do?{% endif %}</p>
+        </div>
+    </div>
+    
+    <div class="chat-input-container">
+        <button id="voiceBtn" class="voice-btn" onclick="toggleVoiceInput()" title="Speak your message">🎤</button>
+        <textarea id="userInput" placeholder="{% if language == 'hi' %}टाइप करें या बोलें...{% elif language == 'or' %}ଟାଇପ୍ କରନ୍ତୁ କିମ୍ବା କୁହନ୍ତୁ...{% else %}Type or speak...{% endif %}" rows="2"></textarea>
+        <button id="speakerBtn" class="speaker-btn" onclick="toggleSpeaker()" title="Read AI response aloud">🔊</button>
+        <button class="send-btn" onclick="sendMessage()">{% if language == 'hi' %}भेजें{% elif language == 'or' %}ପଠାନ୍ତୁ{% else %}Send{% endif %}</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
